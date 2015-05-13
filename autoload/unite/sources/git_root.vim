@@ -47,48 +47,9 @@ function! s:git_root.gather_candidates(args, context)
   call unite#print_source_message('repository: ' . directory_normpath, self.name)
 
   let command = g:unite_source_rec_git_command . ' ls-files --full-name ' . join(a:args) . ' ' . shellescape(directory)
-  let args = vimproc#parser#split_args(command) + a:args
-  if empty(args) || !executable(args[0])
-    call unite#print_source_message('git command : "'. command.'" is not executable.', self.name)
-    let a:context.is_async = 0
-    return []
-  endif
+  let paths = split(vimproc#system2(command), '\n')
 
-  let a:context.is_async = 1
-  let a:context.source__proc = vimproc#popen3(command)
-  call a:context.source__proc.stdin.close()
-
-  return []
-endfunction
-
-
-function! s:git_root.async_gather_candidates(args, context)
-  if !has_key(a:context, 'source__proc')
-    let a:context.is_async = 0
-    return []
-  endif
-
-  let stderr = a:context.source__proc.stderr
-  if !stderr.eof
-    let errors = filter(unite#util#read_lines(stderr, 200), "v:val !~ '^\\s*$'")
-    if !empty(errors)
-      call unite#print_source_error(errors, s:git_root.name)
-    endif
-  endif
-
-  let stdout = a:context.source__proc.stdout
-  let paths = map(filter(unite#util#read_lines(stdout, 2000), 'v:val != ""'),
-                       \ "unite#util#iconv(v:val, 'char', &encoding)")
-  
-  if stdout.eof
-    let a:context.is_async = 0
-    call a:context.source__proc.waitpid()
-  endif
-
-  if unite#util#is_windows()
-    let paths = map(paths, "unite#util#substitute_path_separator(v:val)")
-  endif
-
+  let a:context.is_async = 0
   return map(paths, "{
         \   'word' : v:val,
         \   'action__path' : a:context.source__directory . v:val,
