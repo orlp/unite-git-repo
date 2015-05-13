@@ -10,4 +10,4 @@ directory. This makes it incredibly useful to switch files inside a project.
 
 Example mapping:
 
-    nmap <silent> <leader>g :Unite -start-insert file_rec/git_repo:--cached:--others:--exclude-standard<CR>
+    nmap <silent> <leader>g :Unite -start-insert file_rec/git_repo:-c:-o:--exclude-standard<CR>
