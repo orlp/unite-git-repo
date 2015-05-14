@@ -6,7 +6,7 @@ call unite#sources#rec#define()
 
 let s:git_repo = {
   \ 'name' : 'file_rec/git_repo',
-  \ 'description' : 'candidates from git repository, recursive',
+  \ 'description' : 'candidates from entire git repository, recursive',
   \ 'hooks' : {},
   \ 'default_kind' : 'file',
   \ 'max_candidates' : 50,
